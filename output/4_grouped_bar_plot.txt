@@ -1,0 +1,53 @@
+ year | activity                                | count 
+------+-----------------------------------------+-------
+ 2017 | Business Services                       | 10949 
+ 2017 | Community, personal and Social Services |  1503 
+ 2017 | Trading                                 |  1336 
+ 2017 | Agriculture and Allied Activities       |   849 
+ 2017 | Construction                            |   824 
+ 2018 | Business Services                       | 11417 
+ 2018 | Community, personal and Social Services |  2071 
+ 2018 | Trading                                 |  1645 
+ 2018 | Agriculture and Allied Activities       |   896 
+ 2018 | Construction                            |  1015 
+ 2019 | Business Services                       |  7876 
+ 2019 | Community, personal and Social Services |  3087 
+ 2019 | Trading                                 |  2471 
+ 2019 | Agriculture and Allied Activities       |  1496 
+ 2019 | Construction                            |  1262 
+ 2020 | Business Services                       |  7073 
+ 2020 | Community, personal and Social Services |  3189 
+ 2020 | Trading                                 |  2808 
+ 2020 | Agriculture and Allied Activities       |  2844 
+ 2020 | Construction                            |  1273 
+ 2021 | Business Services                       |  7253 
+ 2021 | Community, personal and Social Services |  4214 
+ 2021 | Trading                                 |  3029 
+ 2021 | Agriculture and Allied Activities       |  4017 
+ 2021 | Construction                            |  1630 
+ 2022 | Business Services                       |  7020 
+ 2022 | Community, personal and Social Services |  4330 
+ 2022 | Trading                                 |  3369 
+ 2022 | Agriculture and Allied Activities       |  4398 
+ 2022 | Construction                            |  1852 
+ 2023 | Business Services                       |  4022 
+ 2023 | Community, personal and Social Services |  7350 
+ 2023 | Trading                                 |  4227 
+ 2023 | Agriculture and Allied Activities       |  2730 
+ 2023 | Construction                            |  1758 
+ 2024 | Business Services                       |  4029 
+ 2024 | Community, personal and Social Services |  7861 
+ 2024 | Trading                                 |  4530 
+ 2024 | Agriculture and Allied Activities       |  2391 
+ 2024 | Construction                            |  1871 
+ 2025 | Business Services                       |  5424 
+ 2025 | Community, personal and Social Services | 10423 
+ 2025 | Trading                                 |  6671 
+ 2025 | Agriculture and Allied Activities       |  2440 
+ 2025 | Construction                            |  2614 
+ 2026 | Business Services                       |  4007 
+ 2026 | Community, personal and Social Services |  7315 
+ 2026 | Trading                                 |  4556 
+ 2026 | Agriculture and Allied Activities       |   993 
+ 2026 | Construction                            |  1744 
+(50 rows)

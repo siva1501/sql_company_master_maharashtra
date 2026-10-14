@@ -1,0 +1,22 @@
+ district   | count 
+------------+-------
+ Thane      |   448 
+ Aurangabad |   195 
+ Mumbai     |   138 
+ Pune       |   114 
+ Palghar    |    76 
+ Latur      |    69 
+ Jalgaon    |    53 
+ Ahmednagar |    47 
+ Sangli     |    46 
+ Nashik     |    38 
+ Kolhapur   |    33 
+ Nagpur     |    26 
+ Akola      |    23 
+ Dhule      |    18 
+ Chandrapur |    17 
+ Amravati   |    17 
+ Parbhani   |    12 
+ Solapur    |    10 
+ Nanded     |     6 
+(19 rows)

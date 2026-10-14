@@ -1,0 +1,23 @@
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+
+# SQLite database
+*.db
+*.sqlite3
+
+# Large raw data CSV (> 100MB exceeds GitLab/GitHub limit)
+data/company_master_data_*.csv
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
