@@ -1,7 +1,7 @@
 """
 Plotting module to visualize Company Master Maharashtra analytics.
 
-Reads data from the local SQLite database and generates 4 publication-quality
+Reads data from Db_set/company_master.db and generates 4 publication-quality
 matplotlib charts saved into the output directory.
 """
 
@@ -12,35 +12,18 @@ import sqlite3
 import matplotlib.pyplot as plt
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+DB_DIR = BASE_DIR / "Db_set"
+SRC_DIR = BASE_DIR / "src"
 OUTPUT_DIR = BASE_DIR / "output"
-DB_PATH = BASE_DIR / "company_master.db"
+DB_PATH = DB_DIR / "company_master.db"
 
 
 def plot_authorized_capital(conn: sqlite3.Connection) -> None:
     """Generate histogram bar chart of company authorized capital."""
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT
-            CASE
-                WHEN authorized_capital <= 100000 THEN '<= 1L'
-                WHEN authorized_capital <= 1000000 THEN '1L to 10L'
-                WHEN authorized_capital <= 10000000 THEN '10L to 1Cr'
-                WHEN authorized_capital <= 100000000 THEN '1Cr to 10Cr'
-                ELSE '> 10Cr'
-            END AS capital_range,
-            COUNT(*) AS count
-        FROM company_master
-        WHERE authorized_capital IS NOT NULL
-        GROUP BY capital_range
-        ORDER BY
-            CASE capital_range
-                WHEN '<= 1L' THEN 1
-                WHEN '1L to 10L' THEN 2
-                WHEN '10L to 1Cr' THEN 3
-                WHEN '1Cr to 10Cr' THEN 4
-                WHEN '> 10Cr' THEN 5
-            END;
-    """)
+    sql_file = SRC_DIR / "1_authorized_capital.sql"
+    with open(sql_file, "r", encoding="utf-8") as f:
+        cursor.execute(f.read())
     rows = cursor.fetchall()
     categories = [r[0] for r in rows]
     counts = [r[1] for r in rows]
@@ -87,20 +70,14 @@ def plot_authorized_capital(conn: sqlite3.Connection) -> None:
 def plot_registration_by_year(conn: sqlite3.Connection) -> None:
     """Generate bar chart of registrations by year."""
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT
-            registration_year AS year,
-            COUNT(*) AS count
-        FROM company_master
-        WHERE registration_year IS NOT NULL
-          AND registration_year >= 1950
-          AND registration_year <= 2026
-        GROUP BY registration_year
-        ORDER BY registration_year ASC;
-    """)
+    sql_file = SRC_DIR / "2_registration_by_year.sql"
+    with open(sql_file, "r", encoding="utf-8") as f:
+        cursor.execute(f.read())
     rows = cursor.fetchall()
-    years = [str(r[0]) for r in rows]
-    counts = [r[1] for r in rows]
+    # Focus visualization on 1950 - 2025 for readability
+    filtered = [r for r in rows if r[0] >= 1950]
+    years = [str(r[0]) for r in filtered]
+    counts = [r[1] for r in filtered]
 
     plt.figure(figsize=(14, 6))
     plt.bar(
@@ -112,7 +89,7 @@ def plot_registration_by_year(conn: sqlite3.Connection) -> None:
     )
 
     plt.title(
-        "Company Registrations by Year in Maharashtra (1950 - 2026)",
+        "Company Registrations by Year in Maharashtra (1950 - 2025)",
         fontsize=14,
         fontweight="bold",
         pad=15,
@@ -132,17 +109,10 @@ def plot_registration_by_year(conn: sqlite3.Connection) -> None:
 def plot_registration_by_district(conn: sqlite3.Connection) -> None:
     """Generate bar chart of 2015 registrations by district."""
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT
-            z.district AS district,
-            COUNT(c.cin) AS count
-        FROM company_master c
-        JOIN zip_code_district z
-            ON c.pin_code = z.pin_code
-        WHERE c.registration_year = 2015
-        GROUP BY z.district
-        ORDER BY count DESC;
-    """)
+    with open(
+        SRC_DIR / "3_registration_by_district.sql", "r", encoding="utf-8"
+    ) as f:
+        cursor.execute(f.read())
     rows = cursor.fetchall()
     districts = [r[0] for r in rows]
     counts = [r[1] for r in rows]
@@ -187,42 +157,10 @@ def plot_registration_by_district(conn: sqlite3.Connection) -> None:
 
 
 def plot_grouped_bar_plot(conn: sqlite3.Connection) -> None:
-    """Generate grouped bar plot of top 5 activities for last 10 years."""
+    """Generate grouped bar plot of top 5 activities for 2015-2025."""
     cursor = conn.cursor()
-    cursor.execute("""
-        WITH last_10_years AS (
-            SELECT DISTINCT registration_year
-            FROM company_master
-            WHERE registration_year IS NOT NULL
-              AND registration_year BETWEEN 1900 AND 2026
-            ORDER BY registration_year DESC
-            LIMIT 10
-        ),
-        top_5_activities AS (
-            SELECT
-                c.industrial_classification AS activity,
-                COUNT(*) AS total_count
-            FROM company_master c
-            JOIN last_10_years y
-                ON c.registration_year = y.registration_year
-            WHERE c.industrial_classification IS NOT NULL
-              AND c.industrial_classification != ''
-            GROUP BY c.industrial_classification
-            ORDER BY total_count DESC
-            LIMIT 5
-        )
-        SELECT
-            c.registration_year AS year,
-            c.industrial_classification AS activity,
-            COUNT(*) AS count
-        FROM company_master c
-        JOIN last_10_years y
-            ON c.registration_year = y.registration_year
-        JOIN top_5_activities a
-            ON c.industrial_classification = a.activity
-        GROUP BY c.registration_year, c.industrial_classification
-        ORDER BY c.registration_year ASC, a.total_count DESC;
-    """)
+    with open(SRC_DIR / "4_grouped_bar_plot.sql", "r", encoding="utf-8") as f:
+        cursor.execute(f.read())
     rows = cursor.fetchall()
 
     year_set = sorted(list({r[0] for r in rows}))
@@ -244,7 +182,7 @@ def plot_grouped_bar_plot(conn: sqlite3.Connection) -> None:
     width = 0.16
     x_indices = list(range(num_years))
 
-    plt.figure(figsize=(15, 7))
+    plt.figure(figsize=(16, 7))
     palette = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 
     for idx, act in enumerate(activity_order):
@@ -262,7 +200,7 @@ def plot_grouped_bar_plot(conn: sqlite3.Connection) -> None:
         )
 
     plt.title(
-        "Top 5 Principal Business Activities Over Last 10 Years (Maharashtra)",
+        "Top 5 Principal Business Activities Over 2015 - 2025 (Maharashtra)",
         fontsize=14,
         fontweight="bold",
         pad=15,
@@ -270,7 +208,7 @@ def plot_grouped_bar_plot(conn: sqlite3.Connection) -> None:
     plt.xlabel("Year of Registration", fontsize=11, labelpad=10)
     plt.ylabel("Number of Registrations", fontsize=11, labelpad=10)
     plt.xticks(x_indices, years, fontsize=10)
-    plt.legend(title="Business Activity", fontsize=9, title_fontsize=10)
+    plt.legend(title="Business Activity", fontsize=8, title_fontsize=9)
     plt.grid(axis="y", linestyle="--", alpha=0.5)
     plt.tight_layout()
 

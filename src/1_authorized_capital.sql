@@ -7,17 +7,22 @@
 --   > 10Cr      (> 100,000,000)
 
 SELECT 
-    CASE 
-        WHEN authorized_capital <= 100000 THEN '<= 1L'
-        WHEN authorized_capital <= 1000000 THEN '1L to 10L'
-        WHEN authorized_capital <= 10000000 THEN '10L to 1Cr'
-        WHEN authorized_capital <= 100000000 THEN '1Cr to 10Cr'
-        ELSE '> 10Cr'
-    END AS capital_range,
-    COUNT(*) AS count
-FROM company_master
-WHERE authorized_capital IS NOT NULL
-GROUP BY capital_range
+    capital_range,
+    company_count
+FROM (
+    SELECT 
+        CASE 
+            WHEN authorized_capital <= 100000 THEN '<= 1L'
+            WHEN authorized_capital <= 1000000 THEN '1L to 10L'
+            WHEN authorized_capital <= 10000000 THEN '10L to 1Cr'
+            WHEN authorized_capital <= 100000000 THEN '1Cr to 10Cr'
+            ELSE '> 10Cr'
+        END AS capital_range,
+        COUNT(*) AS company_count
+    FROM company_master
+    WHERE authorized_capital IS NOT NULL
+    GROUP BY capital_range
+)
 ORDER BY 
     CASE capital_range
         WHEN '<= 1L' THEN 1

@@ -1,53 +1,58 @@
- year | activity                                | count 
-------+-----------------------------------------+-------
- 2017 | Business Services                       | 10949 
- 2017 | Community, personal and Social Services |  1503 
- 2017 | Trading                                 |  1336 
- 2017 | Agriculture and Allied Activities       |   849 
- 2017 | Construction                            |   824 
- 2018 | Business Services                       | 11417 
- 2018 | Community, personal and Social Services |  2071 
- 2018 | Trading                                 |  1645 
- 2018 | Agriculture and Allied Activities       |   896 
- 2018 | Construction                            |  1015 
- 2019 | Business Services                       |  7876 
- 2019 | Community, personal and Social Services |  3087 
- 2019 | Trading                                 |  2471 
- 2019 | Agriculture and Allied Activities       |  1496 
- 2019 | Construction                            |  1262 
- 2020 | Business Services                       |  7073 
- 2020 | Community, personal and Social Services |  3189 
- 2020 | Trading                                 |  2808 
- 2020 | Agriculture and Allied Activities       |  2844 
- 2020 | Construction                            |  1273 
- 2021 | Business Services                       |  7253 
- 2021 | Community, personal and Social Services |  4214 
- 2021 | Trading                                 |  3029 
- 2021 | Agriculture and Allied Activities       |  4017 
- 2021 | Construction                            |  1630 
- 2022 | Business Services                       |  7020 
- 2022 | Community, personal and Social Services |  4330 
- 2022 | Trading                                 |  3369 
- 2022 | Agriculture and Allied Activities       |  4398 
- 2022 | Construction                            |  1852 
- 2023 | Business Services                       |  4022 
- 2023 | Community, personal and Social Services |  7350 
- 2023 | Trading                                 |  4227 
- 2023 | Agriculture and Allied Activities       |  2730 
- 2023 | Construction                            |  1758 
- 2024 | Business Services                       |  4029 
- 2024 | Community, personal and Social Services |  7861 
- 2024 | Trading                                 |  4530 
- 2024 | Agriculture and Allied Activities       |  2391 
- 2024 | Construction                            |  1871 
- 2025 | Business Services                       |  5424 
- 2025 | Community, personal and Social Services | 10423 
- 2025 | Trading                                 |  6671 
- 2025 | Agriculture and Allied Activities       |  2440 
- 2025 | Construction                            |  2614 
- 2026 | Business Services                       |  4007 
- 2026 | Community, personal and Social Services |  7315 
- 2026 | Trading                                 |  4556 
- 2026 | Agriculture and Allied Activities       |   993 
- 2026 | Construction                            |  1744 
-(50 rows)
+ reg_year | companyindustrialclassification                            | registrations_count
+----------+------------------------------------------------------------+---------------------
+     2015 | Business Services                                          |                8161
+     2015 | Agriculture and Allied Activities                          |                 948
+     2015 | Trading                                                    |                 943
+     2015 | Community, personal and Social Services                    |                 775
+     2015 | Manufacturing (Metals and Chemicals, and products thereof) |                 474
+     2016 | Business Services                                          |                9360
+     2016 | Trading                                                    |                1229
+     2016 | Community, personal and Social Services                    |                 839
+     2016 | Agriculture and Allied Activities                          |                 762
+     2016 | Manufacturing (Metals and Chemicals, and products thereof) |                 526
+     2017 | Business Services                                          |               11118
+     2017 | Community, personal and Social Services                    |                1506
+     2017 | Trading                                                    |                1360
+     2017 | Agriculture and Allied Activities                          |                 845
+     2017 | Manufacturing (Metals and Chemicals, and products thereof) |                 576
+     2018 | Business Services                                          |               11594
+     2018 | Community, personal and Social Services                    |                2105
+     2018 | Trading                                                    |                1682
+     2018 | Agriculture and Allied Activities                          |                 907
+     2018 | Manufacturing (Metals and Chemicals, and products thereof) |                 712
+     2019 | Business Services                                          |                8462
+     2019 | Community, personal and Social Services                    |                3050
+     2019 | Trading                                                    |                2553
+     2019 | Agriculture and Allied Activities                          |                1496
+     2019 | Manufacturing (Metals and Chemicals, and products thereof) |                1258
+     2020 | Business Services                                          |                7557
+     2020 | Community, personal and Social Services                    |                3150
+     2020 | Trading                                                    |                2924
+     2020 | Agriculture and Allied Activities                          |                2828
+     2020 | Manufacturing (Metals and Chemicals, and products thereof) |                1733
+     2021 | Business Services                                          |                7804
+     2021 | Community, personal and Social Services                    |                4175
+     2021 | Agriculture and Allied Activities                          |                3885
+     2021 | Trading                                                    |                3077
+     2021 | Manufacturing (Metals and Chemicals, and products thereof) |                2236
+     2022 | Business Services                                          |                7507
+     2022 | Community, personal and Social Services                    |                4229
+     2022 | Agriculture and Allied Activities                          |                4137
+     2022 | Trading                                                    |                3510
+     2022 | Manufacturing (Metals and Chemicals, and products thereof) |                2368
+     2023 | Community, personal and Social Services                    |                7350
+     2023 | Trading                                                    |                4227
+     2023 | Business Services                                          |                4022
+     2023 | Agriculture and Allied Activities                          |                3006
+     2023 | Manufacturing (Metals and Chemicals, and products thereof) |                1690
+     2024 | Community, personal and Social Services                    |                7807
+     2024 | Business Services                                          |                3975
+     2024 | Trading                                                    |                3756
+     2024 | Agriculture and Allied Activities                          |                2556
+     2024 | Manufacturing (Metals and Chemicals, and products thereof) |                1631
+     2025 | Community, personal and Social Services                    |                3815
+     2025 | Trading                                                    |                2016
+     2025 | Business Services                                          |                1785
+     2025 | Agriculture and Allied Activities                          |                1343
+     2025 | Manufacturing (Metals and Chemicals, and products thereof) |                 729
+(55 rows)

@@ -1,8 +1,8 @@
- capital_range |  count 
----------------+--------
- <= 1L         | 268801 
- 1L to 10L     | 205461 
- 10L to 1Cr    |  85653 
- 1Cr to 10Cr   |  33642 
- > 10Cr        |  12791 
+ capital_range | company_count
+---------------+---------------
+ <= 1L         |        242735
+ 1L to 10L     |        188239
+ 10L to 1Cr    |         79901
+ 1Cr to 10Cr   |         31527
+ > 10Cr        |         11668
 (5 rows)

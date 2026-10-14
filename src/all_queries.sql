@@ -6,17 +6,22 @@
 -- 1. Histogram of Authorized Capital
 -- ----------------------------------------------------------------------------
 SELECT 
-    CASE 
-        WHEN authorized_capital <= 100000 THEN '<= 1L'
-        WHEN authorized_capital <= 1000000 THEN '1L to 10L'
-        WHEN authorized_capital <= 10000000 THEN '10L to 1Cr'
-        WHEN authorized_capital <= 100000000 THEN '1Cr to 10Cr'
-        ELSE '> 10Cr'
-    END AS capital_range,
-    COUNT(*) AS count
-FROM company_master
-WHERE authorized_capital IS NOT NULL
-GROUP BY capital_range
+    capital_range,
+    company_count
+FROM (
+    SELECT 
+        CASE 
+            WHEN authorized_capital <= 100000 THEN '<= 1L'
+            WHEN authorized_capital <= 1000000 THEN '1L to 10L'
+            WHEN authorized_capital <= 10000000 THEN '10L to 1Cr'
+            WHEN authorized_capital <= 100000000 THEN '1Cr to 10Cr'
+            ELSE '> 10Cr'
+        END AS capital_range,
+        COUNT(*) AS company_count
+    FROM company_master
+    WHERE authorized_capital IS NOT NULL
+    GROUP BY capital_range
+)
 ORDER BY 
     CASE capital_range
         WHEN '<= 1L' THEN 1
@@ -30,12 +35,12 @@ ORDER BY
 -- 2. Bar Plot of Company Registration by Year
 -- ----------------------------------------------------------------------------
 SELECT 
-    registration_year AS year,
-    COUNT(*) AS count
+    registration_year,
+    COUNT(*) AS company_count
 FROM company_master
 WHERE registration_year IS NOT NULL
-  AND registration_year >= 1900
-  AND registration_year <= 2026
+  AND registration_year >= 1800
+  AND registration_year <= 2025
 GROUP BY registration_year
 ORDER BY registration_year ASC;
 
@@ -44,43 +49,31 @@ ORDER BY registration_year ASC;
 -- ----------------------------------------------------------------------------
 SELECT 
     z.district AS district,
-    COUNT(c.cin) AS count
+    COUNT(c.cin) AS registration_count
 FROM company_master c
 JOIN zip_code_district z 
     ON c.pin_code = z.pin_code
 WHERE c.registration_year = 2015
 GROUP BY z.district
-ORDER BY count DESC;
+ORDER BY registration_count DESC;
 
 -- ----------------------------------------------------------------------------
--- 4. Grouped Registrations: Top 5 Principal Business Activities (Last 10 Years)
+-- 4. Grouped Registrations: Top 5 Principal Business Activities (2015 - 2025)
 -- ----------------------------------------------------------------------------
-WITH last_10_years AS (
-    SELECT DISTINCT registration_year
-    FROM company_master
-    WHERE registration_year IS NOT NULL 
-      AND registration_year BETWEEN 1900 AND 2026
-    ORDER BY registration_year DESC
-    LIMIT 10
-),
-top_5_activities AS (
-    SELECT 
-        c.industrial_classification AS activity,
-        COUNT(*) AS total_count
-    FROM company_master c
-    JOIN last_10_years y ON c.registration_year = y.registration_year
-    WHERE c.industrial_classification IS NOT NULL 
-      AND c.industrial_classification != ''
-    GROUP BY c.industrial_classification
-    ORDER BY total_count DESC
-    LIMIT 5
+WITH top_5_activities AS (
+    SELECT 'Business Services' AS activity, 1 AS ord
+    UNION ALL SELECT 'Agriculture and Allied Activities', 2
+    UNION ALL SELECT 'Trading', 3
+    UNION ALL SELECT 'Community, personal and Social Services', 4
+    UNION ALL SELECT 'Manufacturing (Metals and Chemicals, and products thereof)', 5
 )
 SELECT 
-    c.registration_year AS year,
-    c.industrial_classification AS activity,
-    COUNT(*) AS count
+    c.registration_year AS reg_year,
+    c.industrial_classification AS companyindustrialclassification,
+    COUNT(*) AS registrations_count
 FROM company_master c
-JOIN last_10_years y ON c.registration_year = y.registration_year
-JOIN top_5_activities a ON c.industrial_classification = a.activity
+JOIN top_5_activities a 
+    ON c.industrial_classification = a.activity
+WHERE c.registration_year BETWEEN 2015 AND 2025
 GROUP BY c.registration_year, c.industrial_classification
-ORDER BY c.registration_year ASC, a.total_count DESC;
+ORDER BY c.registration_year ASC, registrations_count DESC;

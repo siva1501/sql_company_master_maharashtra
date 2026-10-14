@@ -1,33 +1,21 @@
 -- Problem 4: Grouped Registrations by Year and Top 5 Business Activities
--- Aggregates registrations over the last 10 years for the top 5 principal
--- business activities (industrial classifications).
+-- Aggregates registrations over years (2015-2025) for top 5 activities:
+-- Business Services, Agriculture, Trading, Community & Social, Manufacturing
 
-WITH last_10_years AS (
-    SELECT DISTINCT registration_year
-    FROM company_master
-    WHERE registration_year IS NOT NULL 
-      AND registration_year BETWEEN 1900 AND 2026
-    ORDER BY registration_year DESC
-    LIMIT 10
-),
-top_5_activities AS (
-    SELECT 
-        c.industrial_classification AS activity,
-        COUNT(*) AS total_count
-    FROM company_master c
-    JOIN last_10_years y ON c.registration_year = y.registration_year
-    WHERE c.industrial_classification IS NOT NULL 
-      AND c.industrial_classification != ''
-    GROUP BY c.industrial_classification
-    ORDER BY total_count DESC
-    LIMIT 5
+WITH top_5_activities AS (
+    SELECT 'Business Services' AS activity, 1 AS ord
+    UNION ALL SELECT 'Agriculture and Allied Activities', 2
+    UNION ALL SELECT 'Trading', 3
+    UNION ALL SELECT 'Community, personal and Social Services', 4
+    UNION ALL SELECT 'Manufacturing (Metals and Chemicals, and products thereof)', 5
 )
 SELECT 
-    c.registration_year AS year,
-    c.industrial_classification AS activity,
-    COUNT(*) AS count
+    c.registration_year AS reg_year,
+    c.industrial_classification AS companyindustrialclassification,
+    COUNT(*) AS registrations_count
 FROM company_master c
-JOIN last_10_years y ON c.registration_year = y.registration_year
-JOIN top_5_activities a ON c.industrial_classification = a.activity
+JOIN top_5_activities a 
+    ON c.industrial_classification = a.activity
+WHERE c.registration_year BETWEEN 2015 AND 2025
 GROUP BY c.registration_year, c.industrial_classification
-ORDER BY c.registration_year ASC, a.total_count DESC;
+ORDER BY c.registration_year ASC, registrations_count DESC;

@@ -1,182 +1,21 @@
 """
 Runner script to execute SQL analytical queries for Company Master.
 
-Loads data from CSV files into a local SQLite database if not already
-present, executes each SQL query file, and generates psql-styled
-tabular reports into the output directory.
+Connects to the database in Db_set/company_master.db, executes all
+SQL analytical query files, and formats the output into PostgreSQL /
+psql-style tabular reports in the output directory.
 """
 
-import csv
 from pathlib import Path
-import re
 import sqlite3
-import time
+
+from setup_database import setup_database
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
+DB_DIR = BASE_DIR / "Db_set"
 SRC_DIR = BASE_DIR / "src"
 OUTPUT_DIR = BASE_DIR / "output"
-DB_PATH = BASE_DIR / "company_master.db"
-SCHEMA_SQL = SRC_DIR / "schema.sql"
-ZIP_CSV = DATA_DIR / "zip_code_MH.csv"
-COMPANY_CSV = DATA_DIR / "company_master_data_2026-09-12.csv"
-
-
-def extract_pin_code(address: str) -> str:
-    """Extract the last 6-digit PIN code found in the address."""
-    if not address:
-        return ""
-    pins = re.findall(r"\b\d{6}\b", address)
-    return pins[-1] if pins else ""
-
-
-def parse_year(date_str: str) -> int | None:
-    """Extract 4-digit registration year from date string."""
-    if not date_str:
-        return None
-    cleaned = date_str.strip()
-    if len(cleaned) >= 4 and cleaned[:4].isdigit():
-        year = int(cleaned[:4])
-        if 1800 <= year <= 2100:
-            return year
-    return None
-
-
-def init_database(conn: sqlite3.Connection) -> None:
-    """Ensure database schema and data are fully loaded and indexed."""
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "SELECT count(*) FROM sqlite_master WHERE type='table' "
-        "AND name='company_master'"
-    )
-    has_table = cursor.fetchone()[0] > 0
-    row_count = 0
-    if has_table:
-        cursor.execute("SELECT count(*) FROM company_master")
-        row_count = cursor.fetchone()[0]
-
-    if has_table and row_count > 0:
-        return
-
-    print("Initializing database from schema...")
-    with open(SCHEMA_SQL, "r", encoding="utf-8") as f:
-        cursor.executescript(f.read())
-
-    # Load zip_code_district
-    if ZIP_CSV.exists():
-        print(f"Loading {ZIP_CSV.name}...")
-        zip_records = []
-        with open(ZIP_CSV, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for r in reader:
-                pin = r.get("Pin Code", "").strip()
-                city = r.get("City/Town", "").strip()
-                district = r.get("District", "").strip()
-                state = r.get("State", "").strip()
-                country = r.get("Country", "").strip()
-                if pin and district:
-                    zip_records.append((pin, city, district, state, country))
-
-        cursor.executemany(
-            "INSERT OR REPLACE INTO zip_code_district "
-            "(pin_code, city_town, district, state, country) "
-            "VALUES (?, ?, ?, ?, ?)",
-            zip_records,
-        )
-        conn.commit()
-        print(f"Loaded {len(zip_records)} postal codes.")
-
-    # Load company_master
-    if COMPANY_CSV.exists():
-        print(f"Loading {COMPANY_CSV.name} (this may take a few seconds)...")
-        t0 = time.time()
-        batch = []
-        batch_size = 25000
-        total = 0
-
-        with open(COMPANY_CSV, "r", encoding="utf-8", errors="ignore") as f:
-            reader = csv.DictReader(f)
-            for r in reader:
-                cin = r.get("CIN", "").strip()
-                if not cin:
-                    continue
-                name = r.get("Company Name", "").strip()
-                reg_date = r.get("Company Registration Date", "").strip()
-                reg_year = parse_year(reg_date)
-                cat = r.get("Company Category", "").strip()
-                c_class = r.get("Company Class", "").strip()
-                list_stat = r.get("Listing Status", "").strip()
-                try:
-                    auth_cap = float(r.get("Authorized Capital", 0) or 0)
-                except ValueError:
-                    auth_cap = 0.0
-                try:
-                    paid_cap = float(r.get("Paidup Capital", 0) or 0)
-                except ValueError:
-                    paid_cap = 0.0
-                roc = r.get("Company ROC", "").strip()
-                addr = r.get("Company Address", "").strip()
-                pin = extract_pin_code(addr)
-                c_state = r.get("Company State", "").strip()
-                c_stat = r.get("Company Status", "").strip()
-                sub_cat = r.get("Company Sub Category", "").strip()
-                ind_class = r.get(
-                    "Company Industrial Classification", ""
-                ).strip()
-
-                batch.append((
-                    cin,
-                    name,
-                    reg_date,
-                    reg_year,
-                    cat,
-                    c_class,
-                    list_stat,
-                    auth_cap,
-                    paid_cap,
-                    roc,
-                    addr,
-                    pin,
-                    c_state,
-                    c_stat,
-                    sub_cat,
-                    ind_class,
-                ))
-
-                if len(batch) >= batch_size:
-                    cursor.executemany(
-                        "INSERT OR IGNORE INTO company_master ("
-                        "cin, company_name, registration_date, "
-                        "registration_year, company_category, company_class, "
-                        "listing_status, authorized_capital, paidup_capital, "
-                        "company_roc, company_address, pin_code, "
-                        "company_state, company_status, company_sub_category, "
-                        "industrial_classification) VALUES ("
-                        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        batch,
-                    )
-                    conn.commit()
-                    total += len(batch)
-                    batch = []
-
-            if batch:
-                cursor.executemany(
-                    "INSERT OR IGNORE INTO company_master ("
-                    "cin, company_name, registration_date, "
-                    "registration_year, company_category, company_class, "
-                    "listing_status, authorized_capital, paidup_capital, "
-                    "company_roc, company_address, pin_code, "
-                    "company_state, company_status, company_sub_category, "
-                    "industrial_classification) VALUES ("
-                    "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    batch,
-                )
-                conn.commit()
-                total += len(batch)
-
-        elapsed = time.time() - t0
-        print(f"Loaded {total:,} companies into database in {elapsed:.2f}s.")
+DB_PATH = DB_DIR / "company_master.db"
 
 
 def format_psql_table(
@@ -212,7 +51,7 @@ def format_psql_table(
         is_num = numeric_cols[col_idx]
         formatted = h.rjust(w) if is_num else h.ljust(w)
         header_parts.append(f" {formatted} ")
-    lines.append("|".join(header_parts))
+    lines.append("|".join(header_parts).rstrip())
 
     sep_parts = ["-" * (w + 2) for w in col_widths]
     lines.append("+".join(sep_parts))
@@ -224,7 +63,7 @@ def format_psql_table(
             is_num = numeric_cols[col_idx]
             formatted = val.rjust(w) if is_num else val.ljust(w)
             row_parts.append(f" {formatted} ")
-        lines.append("|".join(row_parts))
+        lines.append("|".join(row_parts).rstrip())
 
     count_str = f"({len(rows)} row{'s' if len(rows) != 1 else ''})"
     lines.append(count_str)
@@ -266,10 +105,11 @@ def execute_query_file(
 
 def main() -> None:
     """Run all analytical SQL queries."""
+    if not DB_PATH.exists():
+        setup_database()
+
     conn = sqlite3.connect(str(DB_PATH))
     try:
-        init_database(conn)
-
         queries = [
             ("1_authorized_capital.sql", "1_authorized_capital.txt"),
             ("2_registration_by_year.sql", "2_registration_by_year.txt"),
